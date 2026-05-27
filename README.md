@@ -16,7 +16,7 @@ Postinstall:
 
     # cat > /etc/profile.d/zlocal-bman.sh <<\EOF
     bm() {
-      local desc="@@boot management (via bman.sh)@@"
+      local desc="@@netboot management (via bman.sh)@@"
       bman.sh $@
     }
     EOF
