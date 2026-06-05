@@ -53,6 +53,10 @@ do
       [[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_ANPB_HP="$2" && shift
       shift
       ;;
+    --stage|-stage)
+      STAGE_LIST=1
+      shift
+      ;;
     -B)
       BACKUP=1
       BACKUP_LIST=1
