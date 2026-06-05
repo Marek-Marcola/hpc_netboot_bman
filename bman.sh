@@ -1,8 +1,9 @@
 #!/bin/bash
 
-VERSION_BIN="260525"
+VERSION_BIN="260605"
 
-ID="[${0##*/}]"
+SN="${0##*/}"
+ID="[$SN]"
 
 DEBUG=0
 
@@ -14,8 +15,11 @@ os_out=""
 os_tar=""
 os_cfg=""
 
-INSTALL=0
+INSTALL_RSYNC=0
+INSTALL_ANPB=0
+INSTALL_ANPB_HP="bman"
 VERSION=0
+STAGE_LIST=0
 BACKUP=0
 BACKUP_LIST=0
 UNPACK=0
@@ -31,15 +35,17 @@ DDIR=/var/backup/bman
 
 s=0
 
+: ${COMM:=$(readlink -f ${BASH_SOURCE})}
+
 while [ $# -gt 0 ]
 do
   case $1 in
-    --inst*|-inst*)
-      INSTALL=1
-      shift
-      ;;
     --vers*|-vers*)
       VERSION=1
+      shift
+      ;;
+    --inst*|-inst*)
+      INSTALL_RSYNC=1
       shift
       ;;
     -B)
@@ -125,19 +131,25 @@ do
   esac
 done
 
+#
+# stage: HELP
+#
 if [ $HELP -eq 1 ]; then
-  echo "$(basename $0) -install     # install"
-  echo "$(basename $0) -version     # version"
-  echo "$(basename $0) -B           # backup"
-  echo "$(basename $0) -Bl          # backup list"
-  echo "$(basename $0) -u           # unpack"
-  echo "$(basename $0) -c [-x]      # config show,exec"
-  echo "$(basename $0) -a           # activate"
-  echo "$(basename $0) -rm [-x]     # remove"
-  echo "$(basename $0) -lc          # list: configs"
-  echo "$(basename $0) -lb          # list: netboot"
-  echo "$(basename $0) -l           # list: netroot"
-  echo "$(basename $0)              # info"
+  echo "$SN -version                       # version"
+  echo "$SN -install                       # install with rsync"
+  echo "$SN -anpb [host_pattern] [-x]      # install with ansible"
+  echo "$SN -stage                         # stage list"
+  echo ""
+  echo "$SN -B                             # backup"
+  echo "$SN -Bl                            # backup list"
+  echo "$SN -u                             # unpack"
+  echo "$SN -c [-x]                        # config show,exec"
+  echo "$SN -a                             # activate"
+  echo "$SN -rm [-x]                       # remove"
+  echo "$SN -lc                            # list: configs"
+  echo "$SN -lb                            # list: netboot"
+  echo "$SN -l                             # list: netroot"
+  echo "$SN                                # info"
   echo ""
   echo "common options:"
   echo "  -D dist"
@@ -157,10 +169,13 @@ if [ $HELP -eq 1 ]; then
   exit 0
 fi
 
+#
+# stage: CONFIG
+#
 for f in $HOME/.bman.env .bman.env $BMANENV /usr/local/etc/bman.env; do
   if [ -e $f ]; then
     [[ "$EFILE" != "" ]] && EFILE="$EFILE $f" || EFILE="$f"
-    . ${f}
+    . $f
   fi
 done
 
@@ -185,19 +200,35 @@ if [ $VERSION -eq 1 ]; then
 fi
 
 #
-# stage: INSTALL
+# stage: INSTALL-RSYNC
 #
-if [ $INSTALL -eq 1 ]; then
+if [ $INSTALL_RSYNC -eq 1 ]; then
   if [ -f bman.env ]; then
-    set -ex
-    rsync -ai bman.env /usr/local/etc
-    { set +ex; } 2>/dev/null
+    for d in /usr/local/etc /pub/pkb/kb/data/999204-bman/999204-000020_bman_script /pub/pkb/pb/playbooks/999204-bman/files; do
+      if [ -d $d ]; then
+        set -ex
+        rsync -ai bman.env $d
+        { set +ex; } 2>/dev/null
+      fi
+    done
   fi
   if [ -f bman.sh ]; then
-    set -ex
-    rsync -ai bman.sh /usr/local/bin
-    { set +ex; } 2>/dev/null
+    for d in /usr/local/bin /pub/pkb/kb/data/999204-bman/999204-000020_bman_script /pub/pkb/pb/playbooks/999204-bman/files; do
+      if [ -d $d ]; then
+        set -ex
+        rsync -ai bman.sh $d
+        { set +ex; } 2>/dev/null
+      fi
+    done
   fi
+  exit 0
+fi
+
+#
+# stage: STAGE-LIST
+#
+if [ $STAGE_LIST -eq 1 ]; then
+  cat $COMM | grep '^#' | grep 'stage:'
   exit 0
 fi
 
