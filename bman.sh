@@ -48,6 +48,11 @@ do
       INSTALL_RSYNC=1
       shift
       ;;
+    --anpb|-anpb)
+      INSTALL_ANPB=1
+      [[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_ANPB_HP="$2" && shift
+      shift
+      ;;
     -B)
       BACKUP=1
       BACKUP_LIST=1
@@ -221,6 +226,27 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
       fi
     done
   fi
+  exit 0
+fi
+
+#
+# stage: INSTALL-ANPB
+#
+if [ $INSTALL_ANPB -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL)"
+
+  if [ ! $(type -t anpb) ]; then
+    echo "$ID: error: command not found: anpb"
+    exit 1
+  fi
+
+  [[ $EVAL -ne 1 ]] && EVAL_OPT="--check --diff" || EVAL_OPT=""
+
+  set -ex
+  anpb bman_install.yml -e h=$INSTALL_ANPB_HP $EVAL_OPT
+  { set +ex; } 2>/dev/null
+
   exit 0
 fi
 
