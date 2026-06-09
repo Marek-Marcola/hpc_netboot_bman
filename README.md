@@ -1,7 +1,7 @@
 netboot bman
 ============
 
-Netboot management tools.
+HPC netboot management tools.
 
 Install
 -------
