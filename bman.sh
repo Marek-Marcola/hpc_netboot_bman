@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260605"
+VERSION_BIN="260714"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -24,6 +24,7 @@ BACKUP=0
 BACKUP_LIST=0
 UNPACK=0
 CONFIG=0
+EVAL=0
 EXEC=0
 ACTIVATE=0
 REMOVE=0
@@ -55,6 +56,10 @@ do
       ;;
     --stage|-stage)
       STAGE_LIST=1
+      shift
+      ;;
+    -x)
+      EVAL=1
       shift
       ;;
     -B)
@@ -144,21 +149,21 @@ done
 # stage: HELP
 #
 if [ $HELP -eq 1 ]; then
-  echo "$SN -version                       # version"
-  echo "$SN -install                       # install with rsync"
-  echo "$SN -anpb [host_pattern] [-x]      # install with ansible"
-  echo "$SN -stage                         # stage list"
+  echo "$SN -version                  # version"
+  echo "$SN -install                  # install with rsync"
+  echo "$SN -anpb [host_pattern] [-x] # install with ansible"
+  echo "$SN -stage                    # stage list"
   echo ""
-  echo "$SN -B                             # backup"
-  echo "$SN -Bl                            # backup list"
-  echo "$SN -u                             # unpack"
-  echo "$SN -c [-x]                        # config show,exec"
-  echo "$SN -a                             # activate"
-  echo "$SN -rm [-x]                       # remove"
-  echo "$SN -lc                            # list: configs"
-  echo "$SN -lb                            # list: netboot"
-  echo "$SN -l                             # list: netroot"
-  echo "$SN                                # info"
+  echo "$SN -B                        # backup"
+  echo "$SN -Bl                       # backup list"
+  echo "$SN -u                        # unpack"
+  echo "$SN -c [-x]                   # config show,exec"
+  echo "$SN -a                        # activate"
+  echo "$SN -rm [-x]                  # remove"
+  echo "$SN -lc                       # list: configs"
+  echo "$SN -lb                       # list: netboot"
+  echo "$SN -l                        # list: netroot"
+  echo "$SN                           # info"
   echo ""
   echo "common options:"
   echo "  -D dist"
@@ -212,24 +217,39 @@ fi
 # stage: INSTALL-RSYNC
 #
 if [ $INSTALL_RSYNC -eq 1 ]; then
+  (( $s != 0 )) && echo; ((++s))
+  echo "$ID: stage: INSTALL-RSYNC (EVAL=$EVAL)"
+
+  [[ $EVAL -ne 1 ]] && EVAL_OPT="-n" || EVAL_OPT=""
+
   if [ -f bman.env ]; then
     for d in /usr/local/etc /pub/pkb/kb/data/999204-bman/999204-000020_bman_script /pub/pkb/pb/playbooks/999204-bman/files; do
       if [ -d $d ]; then
         set -ex
-        rsync -ai bman.env $d
+        rsync -ai $EVAL_OPT bman.env $d
         { set +ex; } 2>/dev/null
       fi
     done
+  elif [ -f /pub/pkb/pb/playbooks/999204-bman/files/bman.env ]; then
+    set -ex
+    rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999204-bman/files/bman.env /usr/local/etc/
+    { set +ex; } 2>/dev/null
   fi
+
   if [ -f bman.sh ]; then
     for d in /usr/local/bin /pub/pkb/kb/data/999204-bman/999204-000020_bman_script /pub/pkb/pb/playbooks/999204-bman/files; do
       if [ -d $d ]; then
         set -ex
-        rsync -ai bman.sh $d
+        rsync -ai $EVAL_OPT bman.sh $d
         { set +ex; } 2>/dev/null
       fi
     done
+  elif [ -f /pub/pkb/pb/playbooks/999204-bman/files/bman.sh ]; then
+    set -ex
+    rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999204-bman/files/bman.sh /usr/local/etc/
+    { set +ex; } 2>/dev/null
   fi
+
   exit 0
 fi
 
