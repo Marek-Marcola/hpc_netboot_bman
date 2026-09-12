@@ -16,6 +16,7 @@ os_tar=""
 os_cfg=""
 
 INSTALL_RSYNC=0
+INSTALL_RSYNC_HL="$(hostname -s)"
 INSTALL_ANPB=0
 INSTALL_ANPB_HP="bman"
 VERSION=0
@@ -41,12 +42,13 @@ s=0
 while [ $# -gt 0 ]
 do
   case $1 in
-    --vers*|-vers*)
+    --ver*|-ver*)
       VERSION=1
       shift
       ;;
     --inst*|-inst*)
       INSTALL_RSYNC=1
+      [[ -n "$2" && ${2:0:1} != "-" ]] && INSTALL_RSYNC_HL="$2" && shift
       shift
       ;;
     --anpb|-anpb)
@@ -149,8 +151,8 @@ done
 # stage: HELP
 #
 if [ $HELP -eq 1 ]; then
-  echo "$SN -version                  # version"
-  echo "$SN -install                  # install with rsync"
+  echo "$SN -ver                      # version"
+  echo "$SN -inst [host_list]    [-x] # install with rsync"
   echo "$SN -anpb [host_pattern] [-x] # install with ansible"
   echo "$SN -stage                    # stage list"
   echo ""
@@ -218,36 +220,56 @@ fi
 #
 if [ $INSTALL_RSYNC -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: INSTALL-RSYNC (EVAL=$EVAL)"
+  echo "$ID: stage: INSTALL-RSYNC (EVAL=$EVAL HL=$INSTALL_RSYNC_HL)"
 
   [[ $EVAL -ne 1 ]] && EVAL_OPT="-n" || EVAL_OPT=""
 
-  if [ -f bman.env ]; then
-    for d in /usr/local/etc /pub/pkb/kb/data/999204-bman/999204-000020_bman_script /pub/pkb/pb/playbooks/999204-bman/files; do
-      if [ -d $d ]; then
-        set -ex
-        rsync -ai $EVAL_OPT bman.env $d
-        { set +ex; } 2>/dev/null
-      fi
-    done
-  elif [ -f /pub/pkb/pb/playbooks/999204-bman/files/bman.env ]; then
-    set -ex
-    rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999204-bman/files/bman.env /usr/local/etc/
-    { set +ex; } 2>/dev/null
-  fi
-
   if [ -f bman.sh ]; then
-    for d in /usr/local/bin /pub/pkb/kb/data/999204-bman/999204-000020_bman_script /pub/pkb/pb/playbooks/999204-bman/files; do
+    for d in /usr/local/bin /pub/pkb/pb/playbooks/999204-bman/files; do
       if [ -d $d ]; then
         set -ex
-        rsync -ai $EVAL_OPT bman.sh $d
+        rsync -ai $EVAL_OPT bman.sh $d/
         { set +ex; } 2>/dev/null
       fi
     done
   elif [ -f /pub/pkb/pb/playbooks/999204-bman/files/bman.sh ]; then
-    set -ex
-    rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999204-bman/files/bman.sh /usr/local/etc/
-    { set +ex; } 2>/dev/null
+    for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
+      set -ex
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999204-bman/files/bman.sh $h:/usr/local/bin/
+      { set +ex; } 2>/dev/null
+    done
+  fi
+
+  if [ -f bman.env ]; then
+    for d in /usr/local/etc/ /pub/pkb/pb/playbooks/999204-bman/files/; do
+      if [ -d $d ]; then
+        set -ex
+        rsync -ai $EVAL_OPT bman.env $d/
+        { set +ex; } 2>/dev/null
+      fi
+    done
+  elif [ -f /pub/pkb/pb/playbooks/999204-bman/files/bman.env ]; then
+    for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
+      set -ex
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999204-bman/files/bman.env $h:/usr/local/etc/
+      { set +ex; } 2>/dev/null
+    done
+  fi
+
+  if [ -f zlocal-bman.sh ]; then
+    for d in /etc/profile.d/ /pub/pkb/pb/playbooks/999204-bman/files/; do
+      if [ -d $d ]; then
+        set -ex
+        rsync -ai $EVAL_OPT zlocal-bman.sh $d/
+        { set +ex; } 2>/dev/null
+      fi
+    done
+  elif [ -f /pub/pkb/pb/playbooks/999204-bman/files/zlocal-bman.sh ]; then
+    for h in $(echo $INSTALL_RSYNC_HL|sed 's/,/ /g'); do
+      set -ex
+      rsync -ai $EVAL_OPT /pub/pkb/pb/playbooks/999204-bman/files/zlocal-bman.sh $h:/etc/profile.d/
+      { set +ex; } 2>/dev/null
+    done
   fi
 
   exit 0
@@ -258,7 +280,7 @@ fi
 #
 if [ $INSTALL_ANPB -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL)"
+  echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL HP=$INSTALL_ANPB_HP)"
 
   if [ ! $(type -t anpb) ]; then
     echo "$ID: E: command not found: anpb"
