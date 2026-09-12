@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260817"
+VERSION_BIN="260913"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -261,7 +261,7 @@ if [ $INSTALL_ANPB -eq 1 ]; then
   echo "$ID: stage: INSTALL-ANPB (EVAL=$EVAL)"
 
   if [ ! $(type -t anpb) ]; then
-    echo "$ID: error: command not found: anpb"
+    echo "$ID: E: command not found: anpb"
     exit 1
   fi
 
@@ -316,15 +316,15 @@ if [ $UNPACK -eq 1 ]; then
   echo "$ID: stage: UNPACK"
 
   if [ "$os_dist" = "" -o "$os_ver" = "" ]; then
-    echo "$ID: error: require dist,ver"
+    echo "$ID: E: require: dist,ver"
     exit 1
   fi
   if [ -d $os_out ]; then
-    echo "$ID: error: directory already exists: $os_out"
+    echo "$ID: E: directory already exists: $os_out"
     exit 1
   fi
   if [ ! -f $os_tar ]; then
-    echo "$ID: error: archive does not exists: $os_tar"
+    echo "$ID: E: archive does not exists: $os_tar"
     exit 1
   fi
 
@@ -342,19 +342,19 @@ if [ $CONFIG -eq 1 ]; then
   echo "$ID: stage: CONFIG (EXEC=$EXEC)"
 
   if [ "$os_dist" = "" -o "$os_ver" = "" ]; then
-    echo "$ID: error: require dist,ver"
+    echo "$ID: E: require: dist,ver"
     exit 1
   fi
   if [ ! -d $os_out ]; then
-    echo "$ID: error: directory does not exists: $os_out"
+    echo "$ID: E: directory does not exists: $os_out"
     exit 1
   fi
 
   if [ ! -d $os_out/version.d ]; then
-    echo "$ID: error: version directory does not exists: $os_out/version.d"
+    echo "$ID: E: version directory does not exists: $os_out/version.d"
     exit 1
   else
-    echo "$ID: version directory: $os_out/version.d"
+    echo "$ID: I: version directory: $os_out/version.d"
   fi
 
   OPTS="-i -a --no-times"
@@ -429,11 +429,11 @@ if [ $ACTIVATE -eq 1 ]; then
   echo "$ID: stage: ACTIVATE"
 
   if [ "$os_dist" = "" -o "$os_ver" = "" ]; then
-    echo "$ID: error: require dist,ver"
+    echo "$ID: E: require: dist,ver"
     exit 1
   fi
   if [ ! -d $os_out ]; then
-    echo "$ID: error: directory does not exists: $os_out"
+    echo "$ID: E: directory does not exists: $os_out"
     exit 1
   fi
 
@@ -451,7 +451,7 @@ if [ $REMOVE -eq 1 ]; then
   echo "$ID: stage: REMOVE (EXEC=$EXEC)"
 
   if [ -d $os_out/version.d ]; then
-    echo "$ID: version directory: $os_out/version.d"
+    echo "$ID: I: version directory: $os_out/version.d"
     if [ $EXEC -eq 0 ]; then
       echo rm -rf $os_out
     else
@@ -460,7 +460,7 @@ if [ $REMOVE -eq 1 ]; then
       { set +ex; } 2>/dev/null
     fi
   else
-    echo "no os_out: $os_out/version.d"
+    echo "$ID: E: no os_out: $os_out/version.d"
   fi
   if [ -f $os_tar ]; then
     if [ $EXEC -eq 0 ]; then
@@ -471,7 +471,7 @@ if [ $REMOVE -eq 1 ]; then
       { set +ex; } 2>/dev/null
     fi
   else
-    echo "no os_tar: $os_tar"
+    echo "$ID: E: no os_tar: $os_tar"
   fi
 fi
 
