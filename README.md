@@ -7,24 +7,18 @@ Install
 -------
 Install:
 
-    ./bman.sh --install
+    bman.sh -inst -x
     -- or --
-    cp -fv bman.env /usr/local/etc
+    bman.sh -anpb -x
+    -- or --
     cp -fv bman.sh /usr/local/bin
-
-Postinstall:
-
-    # cat > /etc/profile.d/zlocal-bman.sh <<\EOF
-    bm() {
-      local desc="@@netboot management (via bman.sh)@@"
-      bman.sh $@
-    }
-    EOF
+    cp -fv bman.env /usr/local/etc
+    cp -fv zlocal-bman.sh /etc/profile.d
 
 Verify:
 
-    bman.sh --version
+    bm -ver
 
 Help:
 
-    bman.sh --help
+    bm -h
