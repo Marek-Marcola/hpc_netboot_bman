@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260913"
+VERSION_BIN="260914"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -26,7 +26,6 @@ BACKUP_LIST=0
 UNPACK=0
 CONFIG=0
 EVAL=0
-EXEC=0
 ACTIVATE=0
 REMOVE=0
 LIST=0
@@ -76,7 +75,7 @@ do
     -uca)
       UNPACK=1
       CONFIG=1
-      EXEC=1
+      EVAL=1
       ACTIVATE=1
       LIST=1
       shift
@@ -87,10 +86,6 @@ do
       ;;
     -c)
       CONFIG=1
-      shift
-      ;;
-    -x)
-      EXEC=1
       shift
       ;;
     -a)
@@ -159,9 +154,9 @@ if [ $HELP -eq 1 ]; then
   echo "$SN -B                        # backup"
   echo "$SN -Bl                       # backup list"
   echo "$SN -u                        # unpack"
-  echo "$SN -c [-x]                   # config show,exec"
+  echo "$SN -c [-x]                   # config show,run"
   echo "$SN -a                        # activate"
-  echo "$SN -rm [-x]                  # remove"
+  echo "$SN -rm [-x]                  # remove show,run"
   echo "$SN -lc                       # list: configs"
   echo "$SN -lb                       # list: netboot"
   echo "$SN -l                        # list: netroot"
@@ -241,7 +236,7 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
   fi
 
   if [ -f bman.env ]; then
-    for d in /usr/local/etc/ /pub/pkb/pb/playbooks/999204-bman/files/; do
+    for d in /usr/local/etc /pub/pkb/pb/playbooks/999204-bman/files; do
       if [ -d $d ]; then
         set -ex
         rsync -ai $EVAL_OPT bman.env $d/
@@ -257,7 +252,7 @@ if [ $INSTALL_RSYNC -eq 1 ]; then
   fi
 
   if [ -f zlocal-bman.sh ]; then
-    for d in /etc/profile.d/ /pub/pkb/pb/playbooks/999204-bman/files/; do
+    for d in /etc/profile.d /pub/pkb/pb/playbooks/999204-bman/files; do
       if [ -d $d ]; then
         set -ex
         rsync -ai $EVAL_OPT zlocal-bman.sh $d/
@@ -361,7 +356,7 @@ fi
 #
 if [ $CONFIG -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: CONFIG (EXEC=$EXEC)"
+  echo "$ID: stage: CONFIG (EVAL=$EVAL)"
 
   if [ "$os_dist" = "" -o "$os_ver" = "" ]; then
     echo "$ID: E: require: dist,ver"
@@ -380,7 +375,7 @@ if [ $CONFIG -eq 1 ]; then
   fi
 
   OPTS="-i -a --no-times"
-  if [ $EXEC -eq 0 ]; then
+  if [ $EVAL -eq 0 ]; then
     OPTS="--dry-run $OPTS"
   fi
 
@@ -400,7 +395,7 @@ if [ $CONFIG -eq 1 ]; then
       cat $cdir/files-del | \
       while read f; do
         if [ -e $os_out/$f ]; then
-          if [ $EXEC -eq 0 ]; then
+          if [ $EVAL -eq 0 ]; then
             echo rm -vd $os_out/$f
           else
             set -ex
@@ -418,7 +413,7 @@ if [ $CONFIG -eq 1 ]; then
       cat $cdir/files-bin | \
       while read f; do
         if [ -x $cdir/bin/$f ]; then
-          if [ $EXEC -eq 0 ]; then
+          if [ $EVAL -eq 0 ]; then
             echo $cdir/bin/$f $os_out $os_dist $os_ver $os_date
           else
             set -ex
@@ -432,7 +427,7 @@ if [ $CONFIG -eq 1 ]; then
     fi
   done
 
-  if [ $EXEC -ne 0 ]; then
+  if [ $EVAL -ne 0 ]; then
     (( $n != 0 )) && echo; ((++n))
     set -ex
     VF=$os_out/version.d/version-$os_dist-$os_ver-config.txt
@@ -470,11 +465,11 @@ fi
 #
 if [ $REMOVE -eq 1 ]; then
   (( $s != 0 )) && echo; ((++s))
-  echo "$ID: stage: REMOVE (EXEC=$EXEC)"
+  echo "$ID: stage: REMOVE (EVAL=$EVAL)"
 
   if [ -d $os_out/version.d ]; then
     echo "$ID: I: version directory: $os_out/version.d"
-    if [ $EXEC -eq 0 ]; then
+    if [ $EVAL -eq 0 ]; then
       echo rm -rf $os_out
     else
       set -ex
@@ -485,7 +480,7 @@ if [ $REMOVE -eq 1 ]; then
     echo "$ID: E: no os_out: $os_out/version.d"
   fi
   if [ -f $os_tar ]; then
-    if [ $EXEC -eq 0 ]; then
+    if [ $EVAL -eq 0 ]; then
       echo rm -f $os_tar
     else
       set -ex
