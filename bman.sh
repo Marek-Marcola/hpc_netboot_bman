@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260914"
+VERSION_BIN="260915"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -501,7 +501,7 @@ if [ $LIST -ne 0 ]; then
 
   if [ $LIST -eq 1 ]; then
     set -ex
-    tree --noreport -F -h -C -L 1 $NETROOT/
+    tree --noreport -F -h -C -L 1 $NETROOT
     { set +ex; } 2>/dev/null
     echo
     set -ex
@@ -509,14 +509,14 @@ if [ $LIST -ne 0 ]; then
     { set +ex; } 2>/dev/null
   elif [ $LIST -eq 2 ]; then
     set -ex
-    tree --noreport -F -h -C -I syslinux $NETBOOT/
+    tree --noreport -F -h -C -I syslinux $NETBOOT
     { set +ex; } 2>/dev/null
   else
     n=0
     for cid in $(echo $os_cfg|sed 's/,/ /g'); do
       cdir=/usr/local/etc/bman.d/config-$cid
       (( $n != 0 )) && echo; ((++n))
-      echo "config: ${cid}"
+      echo "config: $cid"
       if [ -d $cdir/files-add ]; then
         set -ex
         tree --noreport -F -h -C -a -f -i $cdir/files-add
