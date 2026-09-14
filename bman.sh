@@ -32,10 +32,10 @@ LIST=0
 HELP=0
 QUIET=0
 
-DDIR=/var/backup/bman
-
 s=0
 
+: ${EDIR:="/usr/local/etc/bman.d"}
+: ${DDIR:="/var/backup/bman"}
 : ${COMM:=$(readlink -f ${BASH_SOURCE})}
 
 while [ $# -gt 0 ]
@@ -171,7 +171,7 @@ if [ $HELP -eq 1 ]; then
   echo "aliases:"
   echo "  -uca = -u -c -x -a -l"
   echo ""
-  echo "env files: \$HOME/.bman.env .bman.env \$BMANENV /usr/local/etc/bman.env"
+  echo "env files: /usr/local/etc/bman.env \$HOME/.bman.env .bman.env \$BMANENV"
   echo ""
   echo "notes:"
   echo " bm -l"
@@ -183,7 +183,7 @@ fi
 #
 # stage: CONFIG
 #
-for f in $HOME/.bman.env .bman.env $BMANENV /usr/local/etc/bman.env; do
+for f in /usr/local/etc/bman.env $HOME/.bman.env .bman.env $BMANENV; do
   if [ -e $f ]; then
     [[ "$EFILE" != "" ]] && EFILE="$EFILE $f" || EFILE="$f"
     . $f
