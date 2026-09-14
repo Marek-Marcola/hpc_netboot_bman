@@ -171,7 +171,7 @@ if [ $HELP -eq 1 ]; then
   echo "aliases:"
   echo "  -uca = -u -c -x -a -l"
   echo ""
-  echo "env files: /usr/local/etc/bman.env \$HOME/.bman.env .bman.env \$BMANENV"
+  echo "env files: \$HOME/.bman.env .bman.env \$BMANENV /usr/local/etc/bman.env"
   echo ""
   echo "notes:"
   echo " bm -l"
@@ -183,7 +183,7 @@ fi
 #
 # stage: CONFIG
 #
-for f in /usr/local/etc/bman.env $HOME/.bman.env .bman.env $BMANENV; do
+for f in $HOME/.bman.env .bman.env $BMANENV /usr/local/etc/bman.env; do
   if [ -e $f ]; then
     [[ "$EFILE" != "" ]] && EFILE="$EFILE $f" || EFILE="$f"
     . $f
