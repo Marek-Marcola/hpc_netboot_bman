@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260915"
+VERSION_BIN="260924"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -175,8 +175,8 @@ if [ $HELP -eq 1 ]; then
   echo ""
   echo "notes:"
   echo " bm -l"
-  echo " bm -d YYMMDDHHMM -uca"
-  echo " bm -d YYMMDDHHMM -rm -x -l"
+  echo " bm -d YYMMDDhhmm -uca"
+  echo " bm -d YYMMDDhhmm -rm -x -l"
   exit 0
 fi
 
