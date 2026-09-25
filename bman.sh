@@ -1,11 +1,14 @@
 #!/bin/bash
 
-VERSION_BIN="260924"
+VERSION_BIN="260925"
 
 SN="${0##*/}"
 ID="[$SN]"
 
 DEBUG=0
+
+: ${os_cid:=""}
+: ${os_sid:=""}
 
 os_dist=""
 os_ver=""
@@ -111,6 +114,14 @@ do
       QUIET=1
       shift
       ;;
+    -C)
+      os_cid="$2"
+      shift
+      ;;
+    -S)
+      os_sid="$2"
+      shift
+      ;;
     -D)
       os_dist="$2"
       shift; shift
@@ -153,6 +164,10 @@ if [ $HELP -eq 1 ]; then
   echo ""
   echo "$SN -B                        # backup"
   echo "$SN -Bl                       # backup list"
+  echo ""
+  echo "$SN -C                        # cluster id (os_cid)"
+  echo "$SN -S                        # system  id (os_sid)"
+  echo ""
   echo "$SN -u                        # unpack"
   echo "$SN -c [-x]                   # config show,run"
   echo "$SN -a                        # activate"
@@ -163,6 +178,8 @@ if [ $HELP -eq 1 ]; then
   echo "$SN                           # info"
   echo ""
   echo "common options:"
+  echo "  -C os_cid"
+  echo "  -S os_sid"
   echo "  -D dist"
   echo "  -V ver"
   echo "  -d date"
