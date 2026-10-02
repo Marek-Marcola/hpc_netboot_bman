@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION_BIN="260927"
+VERSION_BIN="261002"
 
 SN="${0##*/}"
 ID="[$SN]"
@@ -448,7 +448,7 @@ if [ $CONFIG -eq 1 ]; then
     (( $n != 0 )) && echo; ((++n))
     set -ex
     VF=$os_out/version.d/version-$os_dist-$os_ver-config.txt
-    echo info.date = $(date +%y-%m-%d_%H:%M:%S) > $VF
+    echo info.date = $(date +%y-%m-%d_%H:%M) > $VF
     echo info.name = $os_dist-$os_ver-config >> $VF
     echo info.from = $os_cfg >> $VF
     { set +ex; } 2>/dev/null
